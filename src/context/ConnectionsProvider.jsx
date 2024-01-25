@@ -1,5 +1,7 @@
-import React, { createContext, createRef, useEffect, useState } from "react";
+import React, { createContext, createRef, useContext, useEffect, useState } from "react";
 import { Connection } from "../services/connections.service";
+import { ListenerServer, addConnectionOnChannel, addUserOnChannel, getChannels, updateConnectionOnChannel } from "../services/firestore.service";
+import { AuthContext } from "./AuthProvider";
 
 export class StreamVideo extends React.Component {
   constructor(props) {
@@ -29,60 +31,154 @@ export class StreamVideo extends React.Component {
 export const ConnectionsContext = createContext();
 
 const ConnectionsProvider = ({ children }) => {
+  const {user} = useContext(AuthContext);  
+  const [localStream, setLocalStream] = useState(null);  
+  const [localStreamPreview, setLocalStreamPreview] = useState(null);  
   const [connections, setConnections] = useState([]);
   const [messages, setMessages] = useState([]);
   const [channels, setChannels] = useState([]);
-  const [user, setUser] = useState({ name: "offer", id: 1 , image: 'https://images.unsplash.com/photo-1575936123452-b67c3203c357'});
+  const [currentChannel, setCurrentChannel] = useState(null);  
 
-  const createCall = (offerId, answerId, channelId) => {    
-    const connection = new Connection("pc1", "pc2", channelId);
+  useEffect(() => {
+    const unsubscribe = ListenerServer((resp) => {      
+      setChannels(resp);
+    })  
+
+    return () => {
+      unsubscribe();
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log('current channel', currentChannel)
+    if(currentChannel){
+      checkNewConnections(channels.find(channel => channel.id == currentChannel.id));
+    }  
+  }, [channels])
+  
+
+  const joinChannel = (channel) => {    
+    addUserOnChannel(user, channel.id).then(() => {      
+      setCurrentChannel(channel);
+      sendOfferToChannel(channel);     
+    })
+  }
+
+  const sendOfferToChannel = async (channel) => {  
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true,video:false});
+    setLocalStream(stream);
+
+    const users = channel.users.filter(item => item.id != user.id);
+
+    users.forEach(channelUser => {
+      createCall(channelUser.id, stream).then(({connection, candidate}) => {
+        const connectionObject = {
+          candidate: JSON.stringify(candidate), 
+          connectionId: connection.id, 
+          offerId:connection.offerId, 
+          answerId: connection.answerId
+        }
+        
+        setConnections((previous) => [...previous, connection]);
+        addConnectionOnChannel(connectionObject, channel);
+      })          
+    })
+  }
+
+  const checkNewConnections = (channel) => {
+    console.log(channel.connections)
+    Object.values(channel.connections).forEach(connection => { 
+      const {offerId, answerId, connectionId, candidate} = connection;    
+
+      const candidateObject = JSON.parse(candidate);
+
+      if(offerId == user.id){
+        if(candidateObject.type != 'answer') return;
+
+        const localConnetion = connections.find(item => item.id == connection.connectionId);
+        console.log(user.name, 'connectionid ==' + connectionId, candidateObject)
+        if(localConnetion){
+          localConnetion.peerConnection.setRemoteDescription(candidateObject);
+        }
+
+        return;
+      }
+
+      if(answerId == user.id){ 
+        if(candidateObject.type != 'offer') return;
+
+        const existentConnection = connections.find(item => item.id == connectionId);
+
+        if(existentConnection)
+          return existentConnection.peerConnection.setRemoteDescription(candidateObject);          
+
+        createAnswer({...connection, candidate: candidateObject}).then(({answerConnection, answerCandidate}) =>{
+          const answerConnectionObject = {
+            candidate: JSON.stringify(answerCandidate), 
+            connectionId: answerConnection.id, 
+            offerId:answerConnection.offerId, 
+            answerId: answerConnection.answerId
+          }
+
+          setConnections((previous) => [...previous, answerConnection]);
+          addConnectionOnChannel(answerConnectionObject, channel);
+        })
+        
+      }
+    })   
     
-    const offerUser = { name: "offer", id: 1 , image: 'https://images.unsplash.com/photo-1575936123452-b67c3203c357'};
-    
-    connection.onConnect = () => {      
-      console.log("connected to server");
-      connection.chat.send(JSON.stringify({type: "metadata", data: offerUser}));
-      setMessages([]);
-    };
-
-    connection.onMessage = (message) => {
-      setMessages((previous) => [...previous, message]); // quando receber uma mensagem
-    };
-
-    connection.Call().then((offer) => {
-      setMessages((previous) => [...previous, { message: offer }]); // adiciona a string de conexão do offer ao chat para ser copiada e utilizada no answer
-      setConnections((previous) => [...previous, connection]); // adiciona a conaxão criada na lista de conexões
-    });
+  }
+  
+  const createCall = (answerId, stream ,connectionId) => {    
+    return new Promise( async (resolve, reject) => {
+      const connection = new Connection(user.id, answerId, connectionId);
+      
+      connection.onConnect = () => {      
+        console.log("connected to server");
+        connection.sendMessage('',{type: "metadata", user});        
+      };
+  
+      connection.onMessage = (message) => {
+        console.log('call message init')
+        setMessages((previous) => [...previous, message]); // quando receber uma mensagem
+      };    
+      
+      connection.Start(null, stream).then((candidate) => {
+       
+        resolve({connection, candidate})   
+      });
+    })
   };
 
-  const createAnswer = (sdp) => {
-    const answerUser = { name: "answer", id: 2 , image: 'https://statusneo.com/wp-content/uploads/2023/02/MicrosoftTeams-image551ad57e01403f080a9df51975ac40b6efba82553c323a742b42b1c71c1e45f1.jpg'};
-    setUser(answerUser)
-
-    const connection = new Connection("pc1", "pc2");
-
-    connection.onConnect = () => {
-        connection.chat.send(JSON.stringify({type: "metadata", data: answerUser}));
-        setMessages([]);
-    };
-
-    connection.ontrack = (stream) => {
-      console.log("received track", stream?.getTracks().length);
-    };
-
-    connection.onMessage = (message) =>
-      setMessages((previous) => [...previous, message]);
-
-    connection.Answer(sdp).then((message) => {
-      console.log("answer response =>>>>>", sdp);
-      setMessages((previous) => [...previous, { message }]);
-      setConnections((previous) => [...previous, connection]);
-    });
+  const createAnswer = (connectionOffer) => { 
+    return new Promise((resolve, reject) => {
+      const {candidate, connectionId, offerId} = connectionOffer;
+  
+      const connection = new Connection(offerId, user.id, connectionId);
+  
+      connection.onConnect = () => {
+        connection.sendMessage('',{type: "metadata", user});       
+      };
+  
+      connection.ontrack = (stream) => {
+        console.log("received track", stream?.getTracks().length);
+      };
+  
+      connection.onMessage = (message) =>
+        setMessages((previous) => [...previous, message]);
+      
+        console.log(localStream.getTracks().length, 'TRACKSSSSS')
+      connection.Start(candidate, localStream).then((candidate) => {       
+        resolve({answerConnection: connection, answerCandidate: candidate})       
+      });
+    })
   };
 
-  const registerAnswer = (sdp) => {
-    var connection = connections.find((item) => item.offerId == "pc1" && !item.peerConnection.remoteDescription);
-    connection.RegisterAnswer(sdp);
+  const registerAnswer = (connectionString) => {
+    const {candidate, connectionId} = JSON.parse(connectionString);
+    console.log(candidate)
+    var connection = connections.find((item) => item.id == connectionId );
+    connection.Start(candidate);
   };
 
   const sendToChannel = (message) => {  
@@ -90,16 +186,6 @@ const ConnectionsProvider = ({ children }) => {
     connections.forEach((conection) => {
         conection.sendMessage(message);
     });   
-  };
-
-  const sendMessageContact = (contactId, message) => {
-    const contactConnection = connections.find(
-      (item) => item.offerId === contactId || item.answerId == contactId
-    );
-    if (contactConnection) {
-      const sendedMessage = contactConnection.sendMessage(message);
-      setMessages((previous) => [...previous, sendedMessage]);
-    }
   };
 
   const updateLocalStream = (stream) => {
@@ -113,15 +199,17 @@ const ConnectionsProvider = ({ children }) => {
   return (
     <ConnectionsContext.Provider
       value={{
+        currentChannel,
         connections,
-        updateLocalStream,
         messages,        
         channels,
+        localStream,
+        joinChannel,
         sendToChannel,
-        sendMessageContact,
         createCall,
         createAnswer,
         registerAnswer,
+        updateLocalStream,
       }}
     >
       {children}

@@ -1,12 +1,9 @@
-import { useState } from 'react'
-import Servidor from './pages/servidor/Servidor'
+import { useContext, useState } from 'react'
+import Servidor from './pages/servidor/Servidor';
 
 function App() {
-
   return (
-    <>
-      <Servidor/>
-    </>
+    <Servidor/> 
   )
 }
 

@@ -8,10 +8,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
 
 import ChannelItem from "./components/channelItem";
 import ProfileHeader from "./components/profileHeader";
+import { ConnectionsContext } from "../../../context/ConnectionsProvider";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -37,14 +38,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Channels = () => {
+  const {channels, joinChannel} = useContext(ConnectionsContext); 
   const classes = useStyles();
+
+  const handleJoinChannel = (channel) => {    
+    joinChannel(channel)
+  }
+
   return (
     <Paper elevation={2} className={classes.container}>
       <CssBaseline />      
       <ProfileHeader/>
-      <Stack spacing={5} className={classes.stackChannels}>
-        <ChannelItem /> 
-      </Stack>
+      <Stack spacing={5} className={classes.stackChannels}>        
+        {
+          channels.map(channel => (
+            <ChannelItem onDoubleClick={handleJoinChannel} channel={channel}/> 
+          ))
+        }
+      </Stack>     
     </Paper>
   );
 };

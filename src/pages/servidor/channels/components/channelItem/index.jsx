@@ -23,7 +23,7 @@ const useStyles = makeStyles(() => ({
 
 }));
 
-const ChannelItem = ({onAccess}) => {
+const ChannelItem = ({onAccess, channel, onDoubleClick}) => {
 
   const classes = useStyles();
 
@@ -38,18 +38,18 @@ const ChannelItem = ({onAccess}) => {
     <Typography component='div'>
       <Stack   
       direction='row'    
-      onDoubleClick={addUser}      
+      onDoubleClick={() => onDoubleClick(channel)}      
       className={classes.channelHeader}>
           <Stack alignItems='center' component='div' fontSize='small' color='grey'>
             <DuoIcon/>            
           </Stack>
           <Typography fontSize='small' color='grey'>
-            Daily - 9:15 AM
+            {channel.name}
           </Typography>
       </Stack>
       <Stack className={classes.usersContainer}>
         {
-          users.map(user => (
+          channel.users.map(user => (
             <UserItem key={user.id} name={user.name}/>
           ))
         }

@@ -1,8 +1,8 @@
 import { Paper } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React from 'react'
+import React, { useContext } from 'react'
 import Chat from './components/chat/Chat';
-import ConnectionsProvider from '../../../context/ConnectionsProvider';
+import ConnectionsProvider, { ConnectionsContext } from '../../../context/ConnectionsProvider';
 
 const useStyles = makeStyles(theme => ({
     container:{
@@ -16,13 +16,12 @@ const useStyles = makeStyles(theme => ({
 
 const Room = () => {
     const classes = useStyles();
+    const {currentChannel} = useContext(ConnectionsContext);
 
-  return (
-    <ConnectionsProvider>
-      <Paper elevation={5} className={classes.container}>
-          <Chat channelName='Daily - 9:15 AM'/>
-      </Paper>
-    </ConnectionsProvider>
+  return (    
+    <Paper elevation={5} className={classes.container}>
+        <Chat/>
+    </Paper>    
   )
 }
 

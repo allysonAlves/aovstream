@@ -35,33 +35,38 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Chat = () => {
-  const {updateLocalStream, connections, messages, createCall, createAnswer, registerAnswer, sendToChannel} = useContext(ConnectionsContext);
-  const classes = useStyles();
-  const [message, setMessage] = useState('');   
-  const videoMainRef = createRef(null);
-
-  useEffect(() => {    
-    
-    return () => {
-     
-    }
-  }, [connections]) 
+  const {updateLocalStream,localStream, connections, messages, sendToChannel, currentChannel} = useContext(ConnectionsContext);
+  const classes = useStyles();  
 
   const updateStream = () => {
     navigator.mediaDevices.getDisplayMedia({video:true}).then(stream => {
       updateLocalStream(stream);
     });
   }
-  
-  console.log(window.screenY)
-  
-  const handleSubmit = (event) => {
-    sendToChannel(message);      
-    setMessage('');      
+
+  const handleSubmit = (target) => {
+    sendToChannel(target.value);      
+    target.value = '';    
   }
 
-  const handleChange = (event) => {
-    setMessage(event.target.value);   
+  const onKeyDown = (e) => {
+    const { value } = e.target;
+
+    if (e.key === 'Tab') {
+      e.preventDefault();
+
+      const cursorPosition = e.target.selectionStart;
+      const cursorEndPosition = e.target.selectionEnd;
+      const tab = '\t';
+
+      e.target.value =
+        value.substring(0, cursorPosition) +
+        tab +
+        value.substring(cursorEndPosition);
+
+      e.target.selectionStart = cursorPosition + 1;
+      e.target.selectionEnd = cursorPosition + 1;
+    }
   }
 
   const isSequenceMessage = (index, list) => {
@@ -73,26 +78,14 @@ const Chat = () => {
       ) 
       return true;
   }
-  const call = () => {
-    createCall();
-  }
 
-  const answer = () => {
-    console.log('create answer',message)
-    createAnswer(message);
-    setMessage('');
-  }
-
-  const connect = () => {
-    registerAnswer(message)
-    setMessage('');
-  }
+  if(!currentChannel) return null;
   
   
   return (
     <Stack justifyContent='space-between' className={classes.chatContainer} id='chat'>
       <Card elevation={3} sx={{padding:2}}>
-        {'Teste'}
+        {currentChannel.name}
         <Button 
         sx={{marginLeft:2}}
         onClick={updateStream}
@@ -107,15 +100,9 @@ const Chat = () => {
       spacing={1} 
       alignItems='center' 
       height={'50%'} 
-      style={{backgroundColor:'black', display: 'none'}}  
+      style={{backgroundColor:'black'}}  
       id='video-stream-container'>        
-        <video        
-        controls       
-        ref={videoMainRef}    
-        autoPlay        
-        style={{objectFit: 'scale-down'}} 
-        width={320} 
-        height={180}></video>        
+        <StreamVideo key='localvideo' stream={localStream}/>       
         {
           connections.map((connection, id) => (
               <StreamVideo key={id} stream={connection.remoteStream}/>
@@ -141,65 +128,26 @@ const Chat = () => {
             </ListItem>
           ))
         }
-        </List>
+        </List>    
       
-      
 
-      {/* <Stack 
-      flex={1}       
-      className={classes.chatMessages} id='messages'>
-        {
-          messageList.map((message, index) => (
-            <>
-              {
-                !isSequenceMessage(index, messageList) ? (
-                  <Stack 
-                  key={message.id}                
-                  className={classes.message}                 
-                  spacing={2} 
-                  direction='row'>                                    
-                    <Avatar/> 
-                    <Stack color='lightgray'> 
-                      <Typography color='gray'>
-                        {message.user.name} - {dateToString(message.date)}
-                      </Typography>                     
-                      <Typography>
-                        {message.message}                      
-                      </Typography>                     
-                    </Stack>
-                  </Stack>   
-                ) : (                                     
-                  <Stack 
-                  key={message.id} 
-                  className={classes.message_sequence} 
-                  color='lightgray'>
-                    {message.message}
-                  </Stack>                
-                )                
-              }
-            </>
+     
 
-          ))
-        }
-      </Stack> */}
-
-      <Stack spacing={2} className={classes.chatInput} direction='row' id='messages-input'>        
+      <Stack spacing={2} className={classes.chatInput} direction='row' id='messages-input'>
           <TextField   
-            value={message}
-            onChange={handleChange} 
+            //value={message}
+            onKeyDown={onKeyDown}
+            //onChange={handleChange} 
             onKeyUp={(event) => {              
               if (!event.shiftKey && event.key== 'Enter')
-                handleSubmit()
+                handleSubmit(event.target)
             }}
             id="outlined-multiline-flexible"    
             placeholder='Digite sua mensagem'        
             multiline
             fullWidth={true}
             maxRows={10}
-          /> 
-          <Button onClick={call} variant='contained' color='success' size='small'>Call</Button>     
-          <Button onClick={answer} variant='contained' color='warning' size='small'>Answer</Button>     
-          <Button onClick={connect} variant='contained' color='secondary' size='small'>Connect</Button>     
+          />         
       </Stack>
     </Stack>
   )

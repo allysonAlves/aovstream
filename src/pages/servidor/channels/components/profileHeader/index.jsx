@@ -1,8 +1,8 @@
-import { AppBar, Avatar, Card, Paper } from '@mui/material'
+import { AppBar, Avatar, Card, Paper, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles';
-import React from 'react'
-
+import React, { useContext } from 'react'
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { AuthContext } from '../../../../../context/AuthProvider';
 
 const useStyles = makeStyles((theme) => ({    
     profileStack: {
@@ -14,11 +14,12 @@ const useStyles = makeStyles((theme) => ({
   }));
 
 const ProfileHeader = () => {
+  const {user} = useContext(AuthContext);
     const classes = useStyles();
   return (
     <Card elevation={5} className={classes.profileStack}>
-        <Avatar variant="rounded">A</Avatar>
-        <span style={{flex:1}}>Allyson Vieira</span>
+        <Avatar variant="rounded"></Avatar>
+        <Typography noWrap style={{flex:1}}>{user.name}</Typography>
         <KeyboardArrowDownIcon
           fontSize="small"
           sx={{ cursor: "pointer", ":hover": { opacity: 0.5 } }}
