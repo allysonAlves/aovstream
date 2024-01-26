@@ -7,17 +7,18 @@ import ConnectionsProvider, { ConnectionsContext } from '../../../context/Connec
 const useStyles = makeStyles(theme => ({
     container:{
         flex: 1,
+        maxWidth: 'calc(100% - 250px)', 
+        minWidth:'450px',     
+        backgroundColor: 'red',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#303030',       
+              
     }
 }));
 
 const Room = () => {
     const classes = useStyles();
-    const {currentChannel} = useContext(ConnectionsContext);
-
   return (    
     <Paper elevation={5} className={classes.container}>
         <Chat/>

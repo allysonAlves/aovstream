@@ -2,12 +2,13 @@ import moment from 'moment'
 import 'moment/dist/locale/pt-br'
 
 export const dateToString = (date) => {
-   return moment(date)
-   .calendar(null, {
-        sameDay: '[Hoje] HH:mm',
-        lastDay: '[Ontem] HH:mm',
-        sameElse: 'DD/MM/YYYY HH:mm'
-    })
+    const dateTime = moment(date);
+    return ` ${dateTime.calendar(null, 
+    {
+        sameDay: `[Hoje]`,
+        lastDay: '[Ontem]',
+        sameElse: 'DD/MM/YYYY'
+    })} às ${dateTime.format('HH:mm')}`;
 }
 
 export const isLessTwoMinutesDiferences = (currentDate, oldDate) => {

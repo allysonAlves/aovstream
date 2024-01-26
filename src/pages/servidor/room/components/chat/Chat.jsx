@@ -12,13 +12,14 @@ const useStyles = makeStyles((theme) => ({
   chatContainer: {    
     height: '100%',
     width: '100%',
+    maxWidth: '100%',    
     backgroundColor: '#303030'
   },  
   chatMessages: {
-   paddingTop:15
+    paddingTop:15
   }, 
   message: {
-    padding: '3px 20px 3px 20px',
+    padding: '3px 10px 0 10px',
     '&:hover': {
       backgroundColor: '#00000010'
     }
@@ -30,12 +31,14 @@ const useStyles = makeStyles((theme) => ({
     }
   }, 
   chatInput: {
-    padding: 10
+    maxWidth: '100%',
+    padding: '0 15px 10px 15px',
+    
   },  
 }));
 
 const Chat = () => {
-  const {updateLocalStream,localStream, connections, messages, sendToChannel, currentChannel} = useContext(ConnectionsContext);
+  const {updateLocalStream, localStream, connections, messages, sendToChannel, currentChannel} = useContext(ConnectionsContext);
   const classes = useStyles();  
 
   const updateStream = () => {
@@ -79,13 +82,13 @@ const Chat = () => {
       return true;
   }
 
-  if(!currentChannel) return null;
+  //if(!currentChannel) return null;
   
   
   return (
     <Stack justifyContent='space-between' className={classes.chatContainer} id='chat'>
       <Card elevation={3} sx={{padding:2}}>
-        {currentChannel.name}
+        {currentChannel?.name}
         <Button 
         sx={{marginLeft:2}}
         onClick={updateStream}
@@ -95,7 +98,7 @@ const Chat = () => {
         </Button>
       </Card>
 
-      <Stack 
+      {/* <Stack 
       direction='row' 
       spacing={1} 
       alignItems='center' 
@@ -108,23 +111,36 @@ const Chat = () => {
               <StreamVideo key={id} stream={connection.remoteStream}/>
           ))
         }
-      </Stack>
+      </Stack> */}
 
-      <List sx={{ height: '100%', paddingTop:2, overflowY:'auto'}}>
+      <List sx={{maxWidth: '100%', height: '100%', paddingTop:2, paddingRight:5, overflowY:'auto'}}>
         {
           messages.map((message, i) => (
             <ListItem key={i} alignItems="flex-start">
-              <ListItemAvatar>
+              <ListItemAvatar style={{minWidth:45}}>
                 <Avatar alt={message?.user?.name} src={message?.user?.image} />
               </ListItemAvatar>
               <ListItemText
                 className={classes.message}
-                sx={{whiteSpace: 'pre-wrap'}}
-                primary={`${message?.user?.name} - ${dateToString(message?.date) || ''}`}
+                sx={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '1200px'}}
+                primaryTypographyProps={{
+                  gap:1, 
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '5px'
+                }}                                
+                primary={                  
+                  <>
+                    <Typography>
+                      {message?.user?.name}
+                    </Typography>
+                    <Typography fontSize={13} component='span' color={'GrayText'}>
+                      {dateToString(message?.date)}
+                    </Typography>
+                  </>
+                }
                 secondaryTypographyProps={{component: 'div'}}
-                secondary={
-                  <MarkDown>{message.message}</MarkDown>                
-                }/>
+                secondary={<MarkDown>{message.message}</MarkDown> }/>
             </ListItem>
           ))
         }
@@ -133,8 +149,9 @@ const Chat = () => {
 
      
 
-      <Stack spacing={2} className={classes.chatInput} direction='row' id='messages-input'>
-          <TextField   
+      <Stack alignItems='start' spacing={2} className={classes.chatInput} direction='row' id='messages-input'>
+          <TextField 
+          size='small'  
             //value={message}
             onKeyDown={onKeyDown}
             //onChange={handleChange} 

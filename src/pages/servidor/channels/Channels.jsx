@@ -17,6 +17,7 @@ import { ConnectionsContext } from "../../../context/ConnectionsProvider";
 const useStyles = makeStyles((theme) => ({
   container: {
     width: "250px",
+    minWidth: '250px',
     height: "100%",
     display: "flex",
     flexDirection: "column",
@@ -52,7 +53,7 @@ const Channels = () => {
       <Stack spacing={5} className={classes.stackChannels}>        
         {
           channels.map(channel => (
-            <ChannelItem onDoubleClick={handleJoinChannel} channel={channel}/> 
+            <ChannelItem key={channel.id} onDoubleClick={handleJoinChannel} channel={channel}/> 
           ))
         }
       </Stack>     

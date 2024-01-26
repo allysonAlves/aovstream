@@ -24,15 +24,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const ChannelItem = ({onAccess, channel, onDoubleClick}) => {
-
-  const classes = useStyles();
-
-  const [users, setUsers] = useState([]);  
-
-  const addUser = () => {
-    setUsers(previous => [...previous, {name: 'Allyson Alves', id: previous.length}])
-    console.log(users);
-  }
+  const classes = useStyles(); 
 
   return (
     <Typography component='div'>
@@ -49,7 +41,7 @@ const ChannelItem = ({onAccess, channel, onDoubleClick}) => {
       </Stack>
       <Stack className={classes.usersContainer}>
         {
-          channel.users.map(user => (
+          channel.users?.map(user => (
             <UserItem key={user.id} name={user.name}/>
           ))
         }

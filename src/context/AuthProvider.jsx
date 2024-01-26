@@ -3,6 +3,7 @@ import Login from '../pages/login/Login';
 import { v4 as uuidv4 } from 'uuid';
 
 export const AuthContext = createContext();
+AuthContext.displayName = 'Auth'
 
 const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);

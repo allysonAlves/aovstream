@@ -29,6 +29,7 @@ export class StreamVideo extends React.Component {
 }
 
 export const ConnectionsContext = createContext();
+ConnectionsContext.displayName = "Connections webRTC";
 
 const ConnectionsProvider = ({ children }) => {
   const {user} = useContext(AuthContext);  
@@ -86,7 +87,7 @@ const ConnectionsProvider = ({ children }) => {
   }
 
   const checkNewConnections = (channel) => {
-    console.log(channel.connections)
+    if(!channel.connections) return;
     Object.values(channel.connections).forEach(connection => { 
       const {offerId, answerId, connectionId, candidate} = connection;    
 

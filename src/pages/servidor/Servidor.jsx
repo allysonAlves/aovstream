@@ -2,22 +2,26 @@ import React from 'react';
 import {makeStyles} from '@mui/styles';
 import Channels from './channels/Channels';
 import Room from './room/Room';
+import WebContainerProvider from '../../context/WebContainerProvider';
+import { Grid } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
     container:{
-      width: '100vw',
+      width: '100%',
+      maxWidth: '100vw',
       height: '100vh',
-      display: 'flex',       
+      display: 'flex',
+      overflow: 'hidden',
     }
 }));
 
 const Servidor = () => {
     const classes = useStyles();
   return (
-    <div className={classes.container}>
-        <Channels/>
-        <Room/>
-    </div>
+    <section className={classes.container} spacing={0}> 
+      <Channels/>      
+      <Room/> 
+    </section>
   )
 }
 

@@ -40,9 +40,9 @@ export async function getChannels(){
 export const addUserOnChannel = (user, channelId) => {
     const channelRef = doc(db, "channels", channelId);
 
-    return updateDoc(channelRef, {
+    return setDoc(channelRef, {
         users: arrayUnion(user)
-    })
+    }, { merge: true })
 }
 
 export const addConnectionOnChannel = (connectionObject, channel) => {
