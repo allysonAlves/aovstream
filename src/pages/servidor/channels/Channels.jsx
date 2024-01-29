@@ -52,7 +52,7 @@ const Channels = () => {
       <ProfileHeader/>
       <Stack spacing={5} className={classes.stackChannels}>        
         {
-          channels.map(channel => (
+          Object.values(channels).map(channel => (
             <ChannelItem key={channel.id} onDoubleClick={handleJoinChannel} channel={channel}/> 
           ))
         }

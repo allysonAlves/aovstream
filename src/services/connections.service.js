@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 
-var configuration = { 'iceServers': [{ urls: 'stun:23.21.150.121' }] }
+var configuration = { 'iceServers': [{ urls: 'stun:23.21.150.121' },{'urls': 'stun:stun.l.google.com:19302'}] }
+var con = { 'optional': [{'DtlsSrtpKeyAgreement': true}] }
 
 const createOffer = (connection) => {
     return new Promise((resolve, reject) => {   
         connection.chat = connection.peerConnection.createDataChannel('chat', { reliable: true });
     
-        connection.chat.onopen = () => {
-            console.log('data channel connected', connection.peerConnection);               
+        connection.chat.onopen = (e) => {
+            console.log('----- data channel connected offer ----', e);               
             connection.onConnect(true)
         }
     
@@ -16,8 +17,7 @@ const createOffer = (connection) => {
     
         var timeId = 0;
     
-        connection.peerConnection.onicecandidate = (e) => {
-            console.log('icecandidate ', e)
+        connection.peerConnection.onicecandidate = (e) => {          
     
             var currentTimeId = Math.random() * 1000;
             timeId = currentTimeId;
@@ -40,7 +40,7 @@ const createAnswer = (connection, candidate) => {
         connection.peerConnection.ondatachannel = (e) => {
             connection.chat = e.channel;
             connection.chat.onopen = () => {
-                console.log('data channel connected', connection.peerConnection);
+                console.log('----- data channel connected answer ----');   
                 connection.onConnect(true);
             }
 
@@ -49,16 +49,16 @@ const createAnswer = (connection, candidate) => {
         }
 
         var timeId = 0;
+        var hasSendCandidate = false;
 
-        connection.peerConnection.onicecandidate = (e) => {
-            console.log('create candidate')
+        connection.peerConnection.onicecandidate = (e) => {           
             var currentTimeId = Math.random() * 1000;
             timeId = currentTimeId;
 
             setTimeout(() => {
-                if (timeId == currentTimeId && timeId != null) {
+                if (timeId == currentTimeId && !hasSendCandidate) {
                     resolve(connection.peerConnection.localDescription)
-                    timeId = null;
+                    hasSendCandidate = true;
                 }
             }, 300);
         }
@@ -72,7 +72,7 @@ const createAnswer = (connection, candidate) => {
 }
 
 const configureMessage = (connection, data) => {
-    console.log('data chegou aqui configure message =>>>> ', data.type)
+    console.log('new message =>>>> ', data.type)
     if(!data?.type) return;
 
     const options = {
@@ -92,7 +92,7 @@ export class Connection {
         this.remoteUser = null; //dados do usuário remoto, enviado na primeira mensagem como metadata
         this.remoteStream = null; // objeto stream remoto, utilizado para apresentar o video recebido na tela
         this.chat = null; // canal de contato, evento send envia uma mensagem para o usuario remoto
-        this.peerConnection = new RTCPeerConnection(configuration); // criação da conexão
+        this.peerConnection = new RTCPeerConnection(configuration, con); // criação da conexão
         this.onMessage = () => { } // evento chamado quando recebe uma mensagem
         this.onConnect = () => { } // chama quando conexão está estabelecida 
         this.ontrack = () => { } // chama quando recebe um track de audio ou video
@@ -108,29 +108,35 @@ export class Connection {
                 })        
             }
 
+            this.peerConnection.onconnectionstatechange = (e) => {
+                console.log('-------------statechange--', e, '------------------')
+            }
+
             this.peerConnection.ontrack = (e) => {
                 this.remoteStream = e.streams[0];
                 this.ontrack(e.streams[0]);
-            }
+            } 
 
-            this.peerConnection.onnegotiationneeded = () => {                
-                if(this.peerConnection.remoteDescription)
-                    this.sendMessage(this.peerConnection.localDescription, {type: 'update'})                
-            }
+            // this.peerConnection.onnegotiationneeded = () => {                
+            //     if(this.peerConnection.remoteDescription)
+            //         this.sendMessage(this.peerConnection.localDescription, {type: 'update'})                
+            // }
 
             if(!candidate){
                resolve(await createOffer(this));               
             } 
 
             if(candidate?.type == 'offer'){
-                resolve(await createAnswer(this, candidate));
-                console.log('config candidate type offer call answer', candidate)
+                resolve(await createAnswer(this, candidate));                
             }
 
             if(candidate?.type == 'answer') {
-                if(!this.peerConnection.remoteDescription)
+                if(!this.peerConnection.remoteDescription){
                     this.peerConnection.setRemoteDescription(candidate)
-                resolve(true)
+                    resolve(true)
+                } else {
+                    resolve(false)
+                }
             }  
         })
     }
@@ -148,7 +154,8 @@ export class Connection {
             user: options?.user || null,
             date: new Date().toISOString()            
         }
-
-        this.chat.send(JSON.stringify(newMessage));
+        
+        if(this.chat && this.peerConnection.connectionState == 'connected')
+            this.chat.send(JSON.stringify(newMessage));
     }
 }

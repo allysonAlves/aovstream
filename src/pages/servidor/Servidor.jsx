@@ -2,8 +2,6 @@ import React from 'react';
 import {makeStyles} from '@mui/styles';
 import Channels from './channels/Channels';
 import Room from './room/Room';
-import WebContainerProvider from '../../context/WebContainerProvider';
-import { Grid } from '@mui/material';
 
 const useStyles = makeStyles(theme => ({
     container:{

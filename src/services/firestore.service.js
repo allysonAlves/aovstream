@@ -1,5 +1,5 @@
 import app from './firebase.config'
-import { getFirestore, collection , addDoc, doc, setDoc, updateDoc ,deleteDoc, onSnapshot , getDoc, getDocs , where, query, orderBy, limit, arrayUnion} from 'firebase/firestore'
+import { getFirestore, collection , addDoc, doc, setDoc, updateDoc ,deleteDoc, onSnapshot , getDoc, getDocs , where, query, orderBy, limit, arrayUnion, or} from 'firebase/firestore'
 
 const db = getFirestore(app);
 
@@ -45,15 +45,14 @@ export const addUserOnChannel = (user, channelId) => {
     }, { merge: true })
 }
 
-export const addConnectionOnChannel = (connectionObject, channel) => {
+export const addConnectionOnChannel = (connectionsList, channel) => {
     const channelRef = doc(db, "channels", channel.id);
 
     const newObjectConnetions = {
-            ...channel.connections,
-            [connectionObject.connectionId]: connectionObject
-        }
-     
-    console.log('objeto de retorno =>>', newObjectConnetions)
+        ...channel.connections,
+        ...connectionsList
+    }     
+    
     return setDoc(channelRef, 
         {
            connections: newObjectConnetions
@@ -70,18 +69,36 @@ export const updateConnectionOnChannel = (connectionObject, channel) => {
 
 export function ListenerServer(callback){
    return onSnapshot(collection(db, 'channels'),    
-    (response) => {
+    (response) => {       
         const result = [];
         response.forEach(item => result.push({id: item.id,...item.data()}));
         callback(result);
     });
 } 
 
-export function ListenerConnections(callback){
-   return onSnapshot(collection(db, 'channels'),    
-    (response) => {
-        const result = [];
-        response.forEach(item => result.push({id: item.id,...item.data()}));
+export function ListenerConnections(channelId, userId, callback) {
+    const channelRef = collection(db, "channels", channelId, "connections");
+
+    const connectionQuery = query(channelRef, or(where("offerId", "==", userId),where("answerId", "==", userId)));
+
+    return onSnapshot(connectionQuery, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            const id = change.doc.id;
+            const data = change.doc.data();
+
+            if (change.type === "added") {
+                console.log("Document added:", id, data);
+                // Adicionar lógica para tratamento de documento adicionado
+            } else if (change.type === "modified") {
+                console.log("Document modified:", id, data);
+                // Adicionar lógica para tratamento de documento modificado
+            } else if (change.type === "removed") {
+                console.log("Document removed:", id);
+                // Adicionar lógica para tratamento de documento removido
+            }
+        });
+
+        const result = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
         callback(result);
     });
-} 
+}

@@ -41,7 +41,7 @@ const ChannelItem = ({onAccess, channel, onDoubleClick}) => {
       </Stack>
       <Stack className={classes.usersContainer}>
         {
-          channel.users?.map(user => (
+          Object.values(channel?.users || []).map(user => (
             <UserItem key={user.id} name={user.name}/>
           ))
         }

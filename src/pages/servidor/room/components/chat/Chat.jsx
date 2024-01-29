@@ -82,20 +82,14 @@ const Chat = () => {
       return true;
   }
 
-  //if(!currentChannel) return null;
+  if(!currentChannel) return null;
   
   
   return (
     <Stack justifyContent='space-between' className={classes.chatContainer} id='chat'>
-      <Card elevation={3} sx={{padding:2}}>
-        {currentChannel?.name}
-        <Button 
-        sx={{marginLeft:2}}
-        onClick={updateStream}
-        variant='contained' 
-        color='error'>
-          Stream
-        </Button>
+      <Card elevation={5} sx={{padding:2.1}}>
+        {currentChannel?.name} 
+        <Button onClick={updateStream} color='error' variant='contained' sx={{marginLeft:2}}>Share Stream</Button>       
       </Card>
 
       {/* <Stack 
@@ -144,10 +138,7 @@ const Chat = () => {
             </ListItem>
           ))
         }
-        </List>    
-      
-
-     
+        </List> 
 
       <Stack alignItems='start' spacing={2} className={classes.chatInput} direction='row' id='messages-input'>
           <TextField 
