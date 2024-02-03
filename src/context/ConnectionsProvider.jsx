@@ -25,7 +25,7 @@ export class StreamVideo extends React.Component {
   }
 
   render() {
-    return <video width={320} height={180} autoPlay ref={this.videoRef} />;
+    return <video {...this.props} width={320} height={180} autoPlay ref={this.videoRef} />;
   }
 
   componentDidMount() {

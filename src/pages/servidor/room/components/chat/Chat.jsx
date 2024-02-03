@@ -106,6 +106,13 @@ const Chat = () => {
           ))
         }
       </Stack> */}
+      <div style={{opacity:0, overflow:'hidden', width:0, height:0}}>
+        {
+          connections.map((connection, id) => (
+              <StreamVideo key={id} stream={connection.remoteStream}/>
+          ))
+        }
+      </div>
 
       <List sx={{maxWidth: '100%', height: '100%', paddingTop:2, paddingRight:5, overflowY:'auto'}}>
         {
