@@ -41,9 +41,8 @@ O objetivo deste projeto é criar uma plataforma de comunicação em tempo real 
 ```
 2. **Credenciais Firebase no .env:**
 
-Crie um arquivo .env na raiz do seu projeto.
-
-Adicione as credenciais do Firebase no arquivo .env da seguinte maneira:
+ - Crie um arquivo .env na raiz do seu projeto.
+ - Adicione as credenciais do Firebase no arquivo .env da seguinte maneira:
 
 ```env
 Copy code
