@@ -72,13 +72,4 @@ Licença
 
 Este projeto é distribuído sob a licença MIT. Consulte o arquivo LICENSE para obter mais detalhes.
 
-Esperamos que este projeto seja uma fonte valiosa de aprendizado e inspiração para explorar as tecnologias WebRTC, web containers, Firebase, React, Vite e Material UI. Divirta-se explorando e contribuindo para o desenvolvimento deste projeto!
-
-Contribuição
-Contribuições são bem-vindas! Sinta-se à vontade para fazer melhorias, correções ou adicionar novas funcionalidades. Crie um fork do projeto, faça as alterações em uma nova branch e envie um pull request.
-
-Licença
-Este projeto é distribuído sob a licença MIT. Consulte o arquivo LICENSE para obter mais detalhes.
-
-Esperamos que este projeto seja uma fonte valiosa de aprendizado e inspiração para explorar as tecnologias WebRTC, web containers, Firebase, React, Vite e Material UI. Divirta-se explorando e contribuindo para o desenvolvimento deste projeto!
-
+Espero que este projeto seja uma fonte valiosa de aprendizado e inspiração para explorar as tecnologias WebRTC, web containers, Firebase, React, Vite e Material UI. Divirta-se explorando e contribuindo para o desenvolvimento deste projeto!
