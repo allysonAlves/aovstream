@@ -17,13 +17,13 @@ import { ConnectionsContext } from "../../../context/ConnectionsProvider";
 const useStyles = makeStyles((theme) => ({
   container: {
     width: "250px",
-    minWidth: '250px',
+    minWidth: "250px",
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
-    msUserSelect: 'none',
+    userSelect: "none",
+    WebkitUserSelect: "none",
+    msUserSelect: "none",   
   },
   stackChannels: {
     overflowY: "auto",
@@ -39,24 +39,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Channels = () => {
-  const {channels, joinChannel} = useContext(ConnectionsContext); 
+  const { channels, joinChannel } = useContext(ConnectionsContext);
   const classes = useStyles();
 
-  const handleJoinChannel = (channel) => {    
-    joinChannel(channel)
-  }
+  const handleJoinChannel = (channel) => {
+    joinChannel(channel);
+  };
 
   return (
     <Paper elevation={2} className={classes.container}>
-      <CssBaseline />      
-      <ProfileHeader/>
-      <Stack spacing={5} className={classes.stackChannels}>        
-        {
-          Object.values(channels).map(channel => (
-            <ChannelItem key={channel.id} onDoubleClick={handleJoinChannel} channel={channel}/> 
-          ))
-        }
-      </Stack>     
+      <CssBaseline />
+      <ProfileHeader />
+      <Stack spacing={5} className={classes.stackChannels}>
+        {Object.values(channels).map((channel) => (
+          <ChannelItem
+            key={channel.id}
+            onDoubleClick={handleJoinChannel}
+            channel={channel}
+          />
+        ))}
+      </Stack>
     </Paper>
   );
 };

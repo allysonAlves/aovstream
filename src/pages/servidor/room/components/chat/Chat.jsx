@@ -88,8 +88,7 @@ const Chat = () => {
   return (
     <Stack justifyContent='space-between' className={classes.chatContainer} id='chat'>
       <Card elevation={5} sx={{padding:2.1}}>
-        {currentChannel?.name} 
-        <Button onClick={updateStream} color='error' variant='contained' sx={{marginLeft:2}}>Share Stream</Button>       
+        {currentChannel?.name}               
       </Card>
 
       {/* <Stack 

@@ -12,7 +12,10 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: 'red',
       height: '100%',
       display: 'flex',
-      flexDirection: 'column',              
+      flexDirection: 'column', 
+      [theme.breakpoints.down("md")]: {
+        maxWidth: "100%",
+      },             
     }
 }));
 
