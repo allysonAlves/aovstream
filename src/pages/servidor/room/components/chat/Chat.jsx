@@ -48,12 +48,18 @@ const Chat = () => {
   }
 
   const handleSubmit = (target) => {
+    if(!target.value) return;
     sendToChannel(target.value);      
     target.value = '';    
   }
 
   const onKeyDown = (e) => {
     const { value } = e.target;
+
+    if (!e.shiftKey && e.key== 'Enter'){
+      e.preventDefault();
+      handleSubmit(e.target)
+    }
 
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -87,10 +93,6 @@ const Chat = () => {
   
   return (
     <Stack justifyContent='space-between' className={classes.chatContainer} id='chat'>
-      <Card elevation={5} sx={{padding:2.1}}>
-        {currentChannel?.name}               
-      </Card>
-
       {/* <Stack 
       direction='row' 
       spacing={1} 
@@ -148,14 +150,12 @@ const Chat = () => {
 
       <Stack alignItems='start' spacing={2} className={classes.chatInput} direction='row' id='messages-input'>
           <TextField 
-          size='small'  
-            //value={message}
-            onKeyDown={onKeyDown}
-            //onChange={handleChange} 
-            onKeyUp={(event) => {              
-              if (!event.shiftKey && event.key== 'Enter')
-                handleSubmit(event.target)
-            }}
+            size='small' 
+            onKeyDown={onKeyDown}            
+            // onKeyUp={(event) => {              
+            //   if (!event.shiftKey && event.key== 'Enter')
+            //     handleSubmit(event.target)
+            // }}
             id="outlined-multiline-flexible"    
             placeholder='Digite sua mensagem'        
             multiline
