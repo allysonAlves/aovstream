@@ -4,6 +4,7 @@ import Channels from "./channels/Channels";
 import Room from "./room/Room";
 import {
   Box,
+  Card,
   Drawer,
   IconButton,
   Paper,
@@ -22,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
     display: "flex",
     overflow: "hidden",
+    backgroundColor: "#1c1c1c",
   },
   channelContainer: {
     [theme.breakpoints.down("md")]: {
@@ -78,7 +80,7 @@ const Servidor = () => {
         </IconButton>
       </Drawer>
 
-      <Box
+      <Box       
         sx={{
           flex: 1,
           display: "flex",
@@ -86,7 +88,7 @@ const Servidor = () => {
           height: "100%",
         }}
       >
-        <Paper elevation={3} className={classes.chatHeader}>
+        <Card elevation={2} className={classes.chatHeader}>
           <Box className={classes.iconMenuOpen}>
             <IconButton onClick={() => setMenuOpen(true)}>
               <MenuIcon />
@@ -95,12 +97,16 @@ const Servidor = () => {
           <Typography color="GrayText" fontWeight={600}>
             {currentChannel?.name || "AOV STREAM"}
           </Typography>
-        </Paper>
+        </Card>
         {currentChannel ? (
           <Paper sx={{ flex: 1 }}>
             <Room />
           </Paper>
-        ) : null}
+        ) : (
+          <Typography sx={{textAlign:'center', mt:5}} color='GrayText'>
+            Entre em um canal para visualizar o chat
+          </Typography>
+        )}
       </Box>
     </section>
   );

@@ -12,8 +12,8 @@ const useStyles = makeStyles((theme) => ({
   chatContainer: {    
     height: '100%',
     width: '100%',
-    maxWidth: '100%',    
-    backgroundColor: '#303030'
+    maxWidth: '100%',
+    backgroundColor: '#292929'
   },  
   chatMessages: {
     paddingTop:15
