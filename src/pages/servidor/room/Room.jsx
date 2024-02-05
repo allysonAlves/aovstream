@@ -6,23 +6,16 @@ import ConnectionsProvider, { ConnectionsContext } from '../../../context/Connec
 
 const useStyles = makeStyles(theme => ({
     container:{
-      flex: 1,
-      maxWidth: 'calc(100% - 250px)', 
-      minWidth:'450px',     
-      backgroundColor: 'red',
-      height: '100%',
+      flex: 1, 
+      backgroundColor: 'red',     
       display: 'flex',
-      flexDirection: 'column',              
+      flexDirection: 'column',                 
     }
 }));
 
 const Room = () => {
     const classes = useStyles();
-  return (    
-    <Paper elevation={5} className={classes.container}>
-        <Chat/>
-    </Paper>    
-  )
+  return (<Chat/>)
 }
 
 export default Room

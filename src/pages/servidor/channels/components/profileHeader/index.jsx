@@ -18,7 +18,7 @@ const ProfileHeader = () => {
     const classes = useStyles();
   return (
     <Card elevation={5} className={classes.profileStack}>
-        <Avatar variant="rounded"></Avatar>
+        <Avatar></Avatar>
         <Typography noWrap style={{flex:1}}>{user.name}</Typography>
         <KeyboardArrowDownIcon
           fontSize="small"

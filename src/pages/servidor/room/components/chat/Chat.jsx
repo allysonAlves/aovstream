@@ -12,8 +12,8 @@ const useStyles = makeStyles((theme) => ({
   chatContainer: {    
     height: '100%',
     width: '100%',
-    maxWidth: '100%',    
-    backgroundColor: '#303030'
+    maxWidth: '100%',
+    backgroundColor: '#292929'
   },  
   chatMessages: {
     paddingTop:15
@@ -48,12 +48,18 @@ const Chat = () => {
   }
 
   const handleSubmit = (target) => {
+    if(!target.value) return;
     sendToChannel(target.value);      
     target.value = '';    
   }
 
   const onKeyDown = (e) => {
     const { value } = e.target;
+
+    if (!e.shiftKey && e.key== 'Enter'){
+      e.preventDefault();
+      handleSubmit(e.target)
+    }
 
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -87,11 +93,6 @@ const Chat = () => {
   
   return (
     <Stack justifyContent='space-between' className={classes.chatContainer} id='chat'>
-      <Card elevation={5} sx={{padding:2.1}}>
-        {currentChannel?.name} 
-        <Button onClick={updateStream} color='error' variant='contained' sx={{marginLeft:2}}>Share Stream</Button>       
-      </Card>
-
       {/* <Stack 
       direction='row' 
       spacing={1} 
@@ -149,14 +150,12 @@ const Chat = () => {
 
       <Stack alignItems='start' spacing={2} className={classes.chatInput} direction='row' id='messages-input'>
           <TextField 
-          size='small'  
-            //value={message}
-            onKeyDown={onKeyDown}
-            //onChange={handleChange} 
-            onKeyUp={(event) => {              
-              if (!event.shiftKey && event.key== 'Enter')
-                handleSubmit(event.target)
-            }}
+            size='small' 
+            onKeyDown={onKeyDown}            
+            // onKeyUp={(event) => {              
+            //   if (!event.shiftKey && event.key== 'Enter')
+            //     handleSubmit(event.target)
+            // }}
             id="outlined-multiline-flexible"    
             placeholder='Digite sua mensagem'        
             multiline
