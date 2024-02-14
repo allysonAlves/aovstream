@@ -66,9 +66,9 @@ export function sendConnection(channelId, receptorId ,connection){
     set(connectionRef, connection);      
 }
 
-export function sendAnswer(channelId, connection){
-    const destinationRef = ref(db, `channels/${channelId}/users/${connection.offerId}/connections/${connection.connectionId}`)
+// export function sendAnswer(channelId, connection){
+//     const destinationRef = ref(db, `channels/${channelId}/users/${connection.offerId}/connections/${connection.connectionId}`)
 
-    set(ref(db, destinationRef), connection);   
-}
+//     set(ref(db, destinationRef), connection);   
+// }
 

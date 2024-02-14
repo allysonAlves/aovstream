@@ -46,13 +46,13 @@ const WebContainer = ({ code, elevation = 1 }) => {
     terminalRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, [terminalResponse, result]);
 
-  const runCode = async () => {
+  const runCode = async () => {   
     setTerminalResponse([
       '🔥 <span style="color: green;"> install dependencies!</span><br>',
     ]);
     setResult([
-      '🔥 <span style="color: green;"> install dependencies!</span><br><br>',
-    ]);
+      '🔥 <span style="color: green;"> install dependencies!</span><br>',
+    ]);   
 
     setRunning(true);
 
@@ -91,6 +91,7 @@ const WebContainer = ({ code, elevation = 1 }) => {
     install.output.pipeTo(
       new WritableStream({
         write(data) {
+          console.log(terminalResponse);
           setTerminalResponse((previous) => [
             ...previous,
             ANSIConverter.toHtml(data),
@@ -105,6 +106,7 @@ const WebContainer = ({ code, elevation = 1 }) => {
     start.output.pipeTo(
       new WritableStream({
         write(data) {
+          console.log(terminalResponse);
           const dataHtml = ANSIConverter.toHtml(data);
           setTerminalResponse((previous) => [...previous, dataHtml]);
           if (!/node index.js/.test(dataHtml))
@@ -131,7 +133,7 @@ const WebContainer = ({ code, elevation = 1 }) => {
           </IconButton>
 
           <Button
-            sx={{marginLeft:1}}
+            sx={{ marginLeft: 1 }}
             disabled={running}
             onClick={runCode}
             size="small"
@@ -164,7 +166,8 @@ const WebContainer = ({ code, elevation = 1 }) => {
                 key={i}
                 dangerouslySetInnerHTML={{ __html: line }}
               />
-            ))}
+            ))
+        }
 
         <div ref={terminalRef}></div>
       </div>

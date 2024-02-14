@@ -1,18 +1,17 @@
 import { makeStyles } from "@mui/styles";
-import {
-  Avatar,
-  CssBaseline,
-  Divider,
-  Icon,
+import {  
+  CssBaseline,    
+  IconButton,
   Paper,
-  Stack,
-  Typography,
+  Stack,  
 } from "@mui/material";
-import React, { useContext } from "react";
+import React, { useContext} from "react";
 
 import ChannelItem from "./components/channelItem";
 import ProfileHeader from "./components/profileHeader";
 import { ConnectionsContext } from "../../../context/ConnectionsProvider";
+import { PiRecordFill, PiStopFill } from "react-icons/pi";
+import AOVRecorder from "../../../components/Recorder/AOVRecorder";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -23,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     userSelect: "none",
     WebkitUserSelect: "none",
-    msUserSelect: "none",   
+    msUserSelect: "none",
   },
   stackChannels: {
     overflowY: "auto",
@@ -40,17 +39,17 @@ const useStyles = makeStyles((theme) => ({
 
 const Channels = () => {
   const { channels, joinChannel } = useContext(ConnectionsContext);
-  const classes = useStyles();
+  const classes = useStyles(); 
 
   const handleJoinChannel = (channel) => {
     joinChannel(channel);
-  };
+  }; 
 
   return (
     <Paper elevation={2} className={classes.container}>
       <CssBaseline />
       <ProfileHeader />
-      <Stack spacing={5} className={classes.stackChannels}>
+      <Stack flex={1} spacing={5} className={classes.stackChannels}>
         {Object.values(channels).map((channel) => (
           <ChannelItem
             key={channel.id}
@@ -58,7 +57,8 @@ const Channels = () => {
             channel={channel}
           />
         ))}
-      </Stack>
+      </Stack> 
+      <AOVRecorder/>          
     </Paper>
   );
 };
