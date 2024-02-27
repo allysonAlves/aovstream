@@ -1,6 +1,6 @@
 import { AppBar, Avatar, Card, Paper, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles';
-import React, { useContext } from 'react'
+import React, { memo, useContext } from 'react'
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { AuthContext } from '../../../../../context/AuthProvider';
 
@@ -28,4 +28,4 @@ const ProfileHeader = () => {
   )
 }
 
-export default ProfileHeader
+export default memo(ProfileHeader)

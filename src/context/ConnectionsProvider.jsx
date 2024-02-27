@@ -18,31 +18,6 @@ import {
   sendConnection,
 } from "../services/database.service";
 
-export class StreamVideo extends React.Component {
-  constructor(props) {
-    super(props);
-    this.videoRef = React.createRef();
-  }
-
-  render() {
-    return <video {...this.props} width={320} height={180} autoPlay ref={this.videoRef} />;
-  }
-
-  componentDidMount() {
-    this.updateVideoStream();
-  }
-
-  componentDidUpdate() {
-    this.updateVideoStream();
-  }
-
-  updateVideoStream() {
-    if (this.videoRef.current.srcObject !== this.props.stream) {
-      this.videoRef.current.srcObject = this.props.stream;
-    }
-  }
-}
-
 export const ConnectionsContext = createContext();
 ConnectionsContext.displayName = "Connections webRTC";
 
