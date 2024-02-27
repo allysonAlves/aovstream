@@ -3,10 +3,11 @@ import { makeStyles } from '@mui/styles';
 import React, { createRef, useContext, useEffect, useState } from 'react'
 import 'moment/dist/locale/pt-br'
 import { dateToString, isLessTwoMinutesDiferences } from '../../../../../utils/date.utils';
-import { ConnectionsContext, StreamVideo } from '../../../../../context/ConnectionsProvider';
+import { ConnectionsContext } from '../../../../../context/ConnectionsProvider';
 
 
 import MarkDown from '../../../../../components/markDown';
+import { VideoStream } from '../../../../../components/VideoStream/VideoStream.jsx';
 
 const useStyles = makeStyles((theme) => ({
   chatContainer: {    
@@ -110,7 +111,7 @@ const Chat = () => {
       <div style={{opacity:0, overflow:'hidden', width:0, height:0}}>
         {
           connections.map((connection, id) => (
-              <StreamVideo key={id} stream={connection.remoteStream}/>
+              <VideoStream key={id} stream={connection.remoteStream}/>
           ))
         }
       </div>

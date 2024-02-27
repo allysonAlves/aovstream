@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getStream, getSuportedMedia } from "../utils/mediaRecorder.utils";
+import { StopStream, getStream, getSuportedMedia } from "../utils/mediaRecorder.utils";
 
 const mediaSuported = getSuportedMedia();   
 
@@ -11,9 +11,36 @@ const initialSuportedMedia = {
 
 const initialStreamOptions = {
     micAudio: true, 
-    screenCapture: true, 
+    screenCapture: false, 
     screenAudio: true, 
     userCam: false
+}
+
+const useTimer = (isRecording) => {
+    const [initialTime, setInitialTime] = useState(0);
+    const [time, setTime] = useState(0);
+
+    useEffect(() => {
+        if(!isRecording) return;
+
+        setInitialTime(Date.now());
+
+        const timer = setInterval(() => {
+            const current = initialTime - Date.now();
+            setTime(current);
+        },1000);
+
+        return () => {
+            clearInterval(timer);
+        }
+    },[isRecording])
+
+    const resetTimer = () => {
+        setTime(0);
+        setInitialTime(0);
+    }
+
+    return {initialTime, time, resetTimer}
 }
 
 const useRecorder = () => {
@@ -25,11 +52,12 @@ const useRecorder = () => {
     const [startTime, setStartTime] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
-
-    const [blob, setBlob] = useState(null);
+    const [stream, setStream] = useState(null);   
     const [blobUrl, setBlobUrl] = useState('');
 
-    var intervalID;
+    const {time, resetTimer} = useTimer(isRecording);
+
+   
     var chunks = [];
 
     useEffect(() => {
@@ -38,19 +66,7 @@ const useRecorder = () => {
             const recorderSettings = JSON.parse(preferences);
             setMediaOptions(prev => ({...prev, ...recorderSettings}))
         } 
-    },[])
-
-    useEffect(() => {
-        if(isRecording) {
-            intervalID = setInterval(() => {
-                setRecordingTime(startTime - Date.now());
-            },1000)
-        } else {
-            setRecordingTime(0);
-            clearInterval(intervalID);
-        }
-    },[isRecording])  
-
+    },[])    
     
     /**
      * @param {Object} videoOptions Opções do vídeo
@@ -68,24 +84,34 @@ const useRecorder = () => {
     
 
     /**
-     * @param {Object} streamOptions Opções do vídeo
-     * @param {boolean} streamOptions.screenCapture Gravação de tela
-     * @param {boolean} streamOptions.screenAudio Captura de audio do sistema
-     * @param {boolean} streamOptions.userCam Captura de video da camera
-     * @param {boolean} streamOptions.micAudio Captura da audio do microfone 
+     * @param {Object} newStreamOptions Opções do vídeo
+     * @param {boolean?} newStreamOptions.screenCapture Gravação de tela
+     * @param {boolean?} newStreamOptions.screenAudio Captura de audio do sistema
+     * @param {boolean?} newStreamOptions.userCam Captura de video da camera
+     * @param {boolean?} newStreamOptions.micAudio Captura da audio do microfone 
      */
-    const configureStream = (streamOptions) => {
-        setStreamOptions(prev => ({...prev, ...streamOptions}))
-    }   
+    const configureStream = async (newStreamOptions) => {
+        if(stream){
+            StopStream(stream)
+        }
+        const newStream = await getStream({...streamOptions, ...newStreamOptions});
+        if(newStream != stream){
+            newStream.getVideoTracks()
+            .forEach(track => track.onended = ()=> {
+                setStream(null);
+                setStreamOptions(prev => ({...prev, screenCapture: false, userCam: false}))
+            })
+        }
+        setStream(newStream || null)
+        setStreamOptions({...streamOptions, ...newStreamOptions});        
+    } 
 
     const start = () => {
         const {videoType, videoCodec, audioCodec} = mediaOptions; 
 
         const definitions = {
             mimeType: `video/${videoType};codecs=${videoCodec},${audioCodec}`
-        }        
-
-        const stream = getStream(streamOptions);
+        }  
         
         const recorder = new MediaRecorder(stream, definitions);
         recorder.start();
@@ -97,8 +123,7 @@ const useRecorder = () => {
                 chunks.push(event.data);
 
                 const blob = new Blob(chunks, { type: definitions.mimeType });
-
-                setBlob(blob);
+               
                 setBlobUrl(URL.createObjectURL(blob))              
             } else {
                 // …
@@ -112,7 +137,7 @@ const useRecorder = () => {
 
         recorder.onstop = () => {
             setIsRecording(false);
-            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            mediaRecorder?.stream?.getTracks()?.forEach(track => track.stop());
             setMediaRecorder(null);
         }
 
@@ -130,18 +155,23 @@ const useRecorder = () => {
             window.open(blobUrl);
     }   
 
-    
+    const remove = () => {
+        setBlobUrl(null);
+        resetTimer();
+    }    
 
     return {
         start, 
-        stop, 
+        stop,
+        remove, 
         configureMedia, 
-        configureStream, 
+        configureStream,
+        openInNewTab,
+        stream, 
         mediaOptions,    
         streamOptions , 
-        recordingTime , 
-        isRecording, 
-        blob, 
+        recordingTime: time , 
+        isRecording,         
         blobUrl, 
         mediaSuported
     }
